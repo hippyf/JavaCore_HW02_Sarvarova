@@ -40,8 +40,8 @@ public class Program01 {
      */
     private static void  initialSize() {
         // Установим размероность игрового поля
-        fieldSizeX =3;
-        fieldSizeY = 4;
+        fieldSizeX = 5;
+        fieldSizeY = 5;
 
         field = new char[fieldSizeX][fieldSizeY];
         // инициализируем ячейки, пока пустым значением - точкой. Пройдем по всем элементам массива
