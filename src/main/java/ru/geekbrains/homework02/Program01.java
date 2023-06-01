@@ -6,6 +6,7 @@ import java.util.Scanner;
 /**
  * Программа для игры на поле любого размера.
  * Первый ход определяется рандомно.
+ * Компьютер мешает человеку выиграть
  */
 public class Program01 {
     private static final char DOT_HUMAN = 'X'; // final - аналог константы; DOT_HUMAN - фишка игрока
@@ -39,7 +40,7 @@ public class Program01 {
     private static void  initialSize() {
         // Установим размероность игрового поля
         fieldSizeX =3;
-        fieldSizeY = 3;
+        fieldSizeY = 4;
 
         field = new char[fieldSizeX][fieldSizeY];
         // инициализируем ячейки, пока пустым значением - точкой. Пройдем по всем элементам массива
@@ -95,7 +96,7 @@ public class Program01 {
                 humanTurn();
                 printField();
                 if (gameCheck(DOT_HUMAN, "Вы победили!")) break;
-                aiTurn();
+                aiTurnWithIntellect();
                 printField();
                 if (gameCheck(DOT_AI, "Победил компьютер :(")) break;
             }
@@ -103,7 +104,7 @@ public class Program01 {
         else {
             System.out.println("Первым ходит компьютер");
             while (true) { //бесконечный цикл (if - проверка на завершение, break - завершение цикла)
-                aiTurn();
+                aiTurnWithIntellect();
                 printField();
                 if (gameCheck(DOT_AI, "Победил компьютер :(")) break;
                 humanTurn();
@@ -128,7 +129,7 @@ public class Program01 {
     }
 
     /**
-     * Обработка хода компьютера
+     * Обработка хода компьютера (метод с семинара)
      */
     private static void aiTurn () {
         int x, y;
@@ -138,6 +139,141 @@ public class Program01 {
         }
         while (!isCellEmpty(x, y)); // проверяем только на пустоту ячейки, т.к. валидность была задана условием рандома
         field[x][y] = DOT_AI;
+
+    }
+
+    /**
+     * Обработка хода компьютера с небольшим интеллектом
+     */
+    private static void aiTurnWithIntellect() {
+        int count = 0;
+        int exit = 0;
+        // Проверка: игровое поле квадрат или прямоугольник
+        if (fieldSizeX == fieldSizeY) { // если квадрат, то есть выигрыш по диагонали
+            for (int y = 0; y < fieldSizeY; y++) { // проверка по горизонтали
+                for (int x = 0; x < fieldSizeX; x++) {
+                    if (field[x][y] == DOT_HUMAN) count = count +1;
+                }
+                if (count == fieldSizeX-1 && exit != 1) {
+                    int x = 0;
+                    while (x < fieldSizeX) {
+                        if (isCellEmpty(x, y)) {
+                            field[x][y] = DOT_AI;
+                            exit = 1;
+                            x = fieldSizeX;
+                            y = fieldSizeY;
+                        } else x = x +1;
+                    }
+                } else count = 0;
+            }
+            for (int x = 0; x < fieldSizeX; x++) { // проверка по вертикали
+                for (int y = 0; y < fieldSizeY; y++) {
+                    if (field[x][y] == DOT_HUMAN) count = count +1;
+                }
+                if (count == fieldSizeX-1 && exit != 1) {
+                    int y = 0;
+                    while (y < fieldSizeY) {
+                        if (isCellEmpty(x, y)) {
+                            field[x][y] = DOT_AI;
+                            exit = 1;
+                            y = fieldSizeY;
+                            x = fieldSizeX;
+                        } else y = y +1;
+                    }
+                } else count = 0;
+            }
+
+            for (int x = 0; x < fieldSizeX; x++) { // проверка по диагонали 1
+                if (field[x][x] == DOT_HUMAN) count = count +1;
+            }
+            if (count == fieldSizeX -1 && exit != 1) {
+                int y = 0;
+                while (y < fieldSizeY) {
+                    if (isCellEmpty(y,y)) {
+                        field[y][y] = DOT_AI;
+                        exit = 1;
+                        y = fieldSizeY;
+                    } else y = y + 1;
+                }
+            }
+
+            int x = fieldSizeX -1; // проверка по диагонали 2
+            int y = 0;
+            count = 0;
+            while (x >= 0) {
+                if (field[x][y] == DOT_HUMAN){
+                    count = count +1;
+                }
+                x = x -1;
+                y = y +1;
+            }
+            if (count == fieldSizeX - 1 && exit != 1) {
+                x = fieldSizeX -1;
+                y =0;
+                while (y < fieldSizeY) {
+                    if (isCellEmpty(x, y)) {
+                        field[x][y] = DOT_AI;
+                        exit = 1;
+                        y = fieldSizeY;
+                    } else {
+                        y = y +1;
+                        x = x -1;
+                    }
+                }
+            } if (exit != 1){ // если нет возможноти выигрыша человеком в 1 ход
+                    do {
+                        x = random.nextInt(fieldSizeX);
+                        y = random.nextInt(fieldSizeY);
+                    }
+                    while (!isCellEmpty(x, y)); // проверяем только на пустоту ячейки, т.к. валидность была задана условием рандома
+                    field[x][y] = DOT_AI;
+            }
+        }
+        else { // если прямоугольник, то по диагонали нет выигрыша
+            exit = 0;
+            for (int y = 0; y < fieldSizeY; y++) { // проверка по горизонтали
+                for (int x = 0; x < fieldSizeX; x++) {
+                    if (field[x][y] == DOT_HUMAN) count = count +1;
+                }
+                if (count == fieldSizeX-1 && exit != 1) {
+                    int x = 0;
+                    while (x < fieldSizeX) {
+                        if (isCellEmpty(x, y)) {
+                            field[x][y] = DOT_AI;
+                            exit = 1;
+                            x = fieldSizeX;
+                            y = fieldSizeY;
+                        } else x = x +1;
+                    }
+                } else count = 0;
+            }
+
+            for (int x = 0; x < fieldSizeX; x++) { // проверка по вертикали
+                for (int y = 0; y < fieldSizeY; y++) {
+                    if (field[x][y] == DOT_HUMAN) count = count +1;
+                }
+                if (count == fieldSizeY-1 && exit != 1) {
+                    int y = 0;
+                    while (y < fieldSizeY) {
+                        if (isCellEmpty(x, y)) {
+                            field[x][y] = DOT_AI;
+                            exit = 1;
+                            x = fieldSizeX;
+                            y = fieldSizeY;
+                        } else y = y +1;
+                    }
+                } else count = 0;
+            }
+            if (exit != 1){ // если нет возможноти выигрыша человеком в 1 ход
+                int x,y;
+                do {
+                    x = random.nextInt(fieldSizeX);
+                    y = random.nextInt(fieldSizeY);
+                }
+                while (!isCellEmpty(x, y)); // проверяем только на пустоту ячейки, т.к. валидность была задана условием рандома
+                field[x][y] = DOT_AI;
+            }
+        }
 
     }
 
@@ -187,7 +323,7 @@ public class Program01 {
                 else count = 0;
             }
 
-            for (int x = 0; x < fieldSizeX; x++) { // проверка по диагонали
+            for (int x = 0; x < fieldSizeX; x++) { // проверка по диагонали 1
                 if (field[x][x] == c) count = count +1;
                 else {
                     x = fieldSizeX -1; // выходим из цикла
@@ -196,7 +332,7 @@ public class Program01 {
             }
             if (count == fieldSizeX) return true;
 
-            int x = fieldSizeX -1; // проверка по второй диагонали
+            int x = fieldSizeX -1; // проверка по диагонали 2
             int y = 0;
             while (x >= 0) {
                 if (field[x][y] == c) count = count +1;
